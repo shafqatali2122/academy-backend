@@ -17,11 +17,13 @@ const userSchema = mongoose.Schema(
             type: String,
             required: true,
         },
-        role: {
-            type: String,
-            required: true,
-            default: 'admin', // Default role for this project
-        },
+        // --- NEW FIELD ---
+    // Add the role field exactly as you specified.
+    role: {
+        type: String,
+        enum: ['admin', 'content_manager', 'marketing_manager', 'student', 'guest'],
+        default: 'student', // Default new signups to 'student'
+    },
     },
     {
         timestamps: true, // Automatically adds createdAt and updatedAt fields

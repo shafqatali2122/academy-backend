@@ -1,29 +1,52 @@
-// backend/routes/blog.routes.js
-
 const express = require('express');
 const router = express.Router();
 const {
-    createBlogPost,
-    getBlogPosts,
-    getBlogPostById, // <-- Added for Admin Edit
-    getBlogPostBySlug,
-    updateBlogPost,
-    deleteBlogPost,
+  createBlogPost,
+  getBlogPosts,
+  getBlogPostById,
+  getBlogPostBySlug,
+  updateBlogPost,
+  deleteBlogPost,
 } = require('../controllers/blog.controller');
-const { protect } = require('../middleware/authMiddleware');
 
-// Route for creating (POST, protected) and reading all (GET, public)
-router.route('/')
-    .post(protect, createBlogPost)
-    .get(getBlogPosts); 
+const { protect, authorizeRoles } = require('../middleware/authMiddleware');
 
-// Routes for specific blogs by ID (protected for admin CRUD)
-router.route('/:id')
-    .get(protect, getBlogPostById) // <-- Protected GET by ID for Edit Form
-    .put(protect, updateBlogPost)
-    .delete(protect, deleteBlogPost);
+// --- Public Routes ---
+// Anyone can view blogs or read by slug
+router.get('/', getBlogPosts);
+router.get('/slug/:slug', getBlogPostBySlug);
 
-// Route for reading a single blog by slug (used by the public frontend)
-router.get('/slug/:slug', getBlogPostBySlug); 
+// --- Protected Routes ---
+// Only Admin and Content Manager can create blogs
+router.post(
+  '/',
+  protect,
+  authorizeRoles('admin', 'content_manager'),
+  createBlogPost
+);
+
+// Only Admin and Content Manager can update blogs
+router.put(
+  '/:id',
+  protect,
+  authorizeRoles('admin', 'content_manager'),
+  updateBlogPost
+);
+
+// Only Admin and Content Manager can get blog by ID (for edit forms)
+router.get(
+  '/:id',
+  protect,
+  authorizeRoles('admin', 'content_manager'),
+  getBlogPostById
+);
+
+// Only Admin can delete blogs
+router.delete(
+  '/:id',
+  protect,
+  authorizeRoles('admin'),
+  deleteBlogPost
+);
 
 module.exports = router;
