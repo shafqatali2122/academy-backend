@@ -2,32 +2,29 @@
 
 const express = require('express');
 const router = express.Router();
-const User = require('../models/user.model'); // This is fine to keep
+const User = require('../models/user.model');
 
-// 1. Import BOTH middleware functions
 const { protect, authorizeRoles } = require('../middleware/authMiddleware');
 
-// 2. Import ALL your user controller functions
 const {
   registerUser,
   authUser,
   getDashboardStats,
-  getUsers, // <-- NEW
-  deleteUser, // <-- NEW
-  updateUserRole, // <-- NEW
+  getUsers,
+  deleteUser,
+  updateUserRole,
 } = require('../controllers/user.controller');
 
 // -------------------------------------------
-// PUBLIC ROUTES (No 'protect')
+// PUBLIC ROUTES
 // -------------------------------------------
 router.post('/', registerUser);
 router.post('/login', authUser);
 
 // -------------------------------------------
-// PROTECTED ROUTES (Require Auth)
+// PROTECTED ROUTES
 // -------------------------------------------
 
-// We use authorizeRoles to allow ALL admin types to see the stats
 router.get(
   '/dashboard-stats',
   protect,
@@ -35,7 +32,8 @@ router.get(
     'SuperAdmin',
     'AdmissionsAdmin',
     'ContentAdmin',
-    'AudienceAdmin'
+    'AudienceAdmin',
+    'admin' // <-- TEMPORARY FIX ADDED
   ),
   getDashboardStats
 );
@@ -44,20 +42,25 @@ router.get(
 // SUPER ADMIN-ONLY ROUTES
 // -------------------------------------------
 
-// GET all users (SuperAdmin only)
-// We replaced your old logic with authorizeRoles('SuperAdmin')
-// and the 'getUsers' controller
-router.get('/', protect, authorizeRoles('SuperAdmin'), getUsers);
+router.get(
+  '/',
+  protect,
+  authorizeRoles('SuperAdmin', 'admin'), // <-- TEMPORARY FIX ADDED
+  getUsers
+);
 
-// PUT: Update user role (SuperAdmin only)
-// Note: We use 'PUT' to match the controller we wrote
-// We replaced your old logic with authorizeRoles('SuperAdmin')
-// and the 'updateUserRole' controller
-router.put('/:id/role', protect, authorizeRoles('SuperAdmin'), updateUserRole);
+router.put(
+  '/:id/role',
+  protect,
+  authorizeRoles('SuperAdmin', 'admin'), // <-- TEMPORARY FIX ADDED
+  updateUserRole
+);
 
-// DELETE a user (SuperAdmin only)
-// We replaced your old logic with authorizeRoles('SuperAdmin')
-// and the 'deleteUser' controller
-router.delete('/:id', protect, authorizeRoles('SuperAdmin'), deleteUser);
+router.delete(
+  '/:id',
+  protect,
+  authorizeRoles('SuperAdmin', 'admin'), // <-- TEMPORARY FIX ADDED
+  deleteUser
+);
 
 module.exports = router;
