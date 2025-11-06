@@ -1,29 +1,34 @@
 // backend/routes/user.routes.js
 
-const express = require('express');
-const router = express.Router();
-const User = require('../models/user.model');
-const { protect, authorizeRoles } = require('../middleware/authMiddleware');
+import express from 'express';
+import {
+    registerUser,
+    loginUser,
+    forgotPassword,
+    resetPassword,
+    getDashboardStats,
+    getUsers,
+    deleteUser,
+    updateUserRole,
+} from '../controllers/user.controller.js';
+import { protect, authorizeRoles } from '../middleware/authMiddleware.js';
+import User from '../models/user.model.js';
 
-const {
-  registerUser,
-  authUser,
-  getDashboardStats,
-  getUsers,
-  deleteUser,
-  updateUserRole,
-  forgotPassword,   // ✅ NEW IMPORT
-  resetPassword,    // ✅ NEW IMPORT
-} = require('../controllers/user.controller');
+const router = express.Router();
 
 // -------------------------------------------
 // PUBLIC ROUTES
 // -------------------------------------------
-router.post('/', registerUser);
-router.post('/login', authUser);
 
-// ✅ NEW PASSWORD RESET ROUTES
-// -------------------------------------------
+// @route   POST /api/users/register
+// @desc    Register a new user
+// @access  Public
+router.post('/register', registerUser);
+
+// @route   POST /api/users/login
+// @desc    Authenticate user & get token
+// @access  Public
+router.post('/login', loginUser);
 
 // @route   POST /api/users/forgot-password
 // @desc    Send password reset email
@@ -40,16 +45,16 @@ router.patch('/reset-password/:token', resetPassword);
 // -------------------------------------------
 
 router.get(
-  '/dashboard-stats',
-  protect,
-  authorizeRoles(
-    'SuperAdmin',
-    'AdmissionsAdmin',
-    'ContentAdmin',
-    'AudienceAdmin',
-    'admin' // <-- TEMPORARY FIX ADDED
-  ),
-  getDashboardStats
+    '/dashboard-stats',
+    protect,
+    authorizeRoles(
+        'SuperAdmin',
+        'AdmissionsAdmin',
+        'ContentAdmin',
+        'AudienceAdmin',
+        'admin' // temporary allowance
+    ),
+    getDashboardStats
 );
 
 // -------------------------------------------
@@ -57,24 +62,24 @@ router.get(
 // -------------------------------------------
 
 router.get(
-  '/',
-  protect,
-  authorizeRoles('SuperAdmin', 'admin'), // <-- TEMPORARY FIX ADDED
-  getUsers
+    '/',
+    protect,
+    authorizeRoles('SuperAdmin', 'admin'),
+    getUsers
 );
 
 router.put(
-  '/:id/role',
-  protect,
-  authorizeRoles('SuperAdmin', 'admin'), // <-- TEMPORARY FIX ADDED
-  updateUserRole
+    '/:id/role',
+    protect,
+    authorizeRoles('SuperAdmin', 'admin'),
+    updateUserRole
 );
 
 router.delete(
-  '/:id',
-  protect,
-  authorizeRoles('SuperAdmin', 'admin'), // <-- TEMPORARY FIX ADDED
-  deleteUser
+    '/:id',
+    protect,
+    authorizeRoles('SuperAdmin', 'admin'),
+    deleteUser
 );
 
-module.exports = router;
+export default router;
