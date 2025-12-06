@@ -1,4 +1,5 @@
 import Course from '../models/course.model.js';
+import mongoose from 'mongoose'; // <--- ADDED THIS IMPORT
 
 // --- Public Functions ---
 
@@ -53,7 +54,15 @@ export const getAllCourses = async (req, res) => {
 // @access  Private/Admin/ContentMgr
 export const getCourseById = async (req, res) => {
   try {
-    const course = await Course.findById(req.params.id);
+    const { id } = req.params;
+
+    // 1. SAFETY CHECK: Is this a valid MongoDB ID?
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      console.log(`Invalid ID received: ${id}`);
+      return res.status(400).json({ message: 'Invalid Course ID format' });
+    }
+
+    const course = await Course.findById(id);
     if (course) {
       res.json(course);
     } else {
@@ -69,7 +78,6 @@ export const getCourseById = async (req, res) => {
 // @access  Private/Admin/ContentMgr
 export const createCourse = async (req, res) => {
   try {
-    // Basic validation
     const { title, slug, description, price } = req.body;
     if (!title || !slug || !description) {
       return res.status(400).json({ message: 'Title, slug, and description are required' });
@@ -103,15 +111,21 @@ export const createCourse = async (req, res) => {
 // @access  Private/Admin/ContentMgr
 export const updateCourse = async (req, res) => {
   try {
+    const { id } = req.params;
     const { title, slug, description, price, fullContent, image, isPublished } = req.body;
     
-    const course = await Course.findById(req.params.id);
+    // 1. SAFETY CHECK
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid Course ID format' });
+    }
+
+    const course = await Course.findById(id);
 
     if (course) {
       // Check for slug uniqueness if it's being changed
       if (slug && slug !== course.slug) {
         const slugExists = await Course.findOne({ slug });
-        if (slugExists) {
+        if (slugExists && slugExists._id.toString() !== id) {
           return res.status(400).json({ message: 'Slug already exists.' });
         }
         course.slug = slug;
@@ -139,11 +153,15 @@ export const updateCourse = async (req, res) => {
 // @access  Private/Admin/ContentMgr
 export const deleteCourse = async (req, res) => {
   try {
-    const course = await Course.findById(req.params.id);
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+       return res.status(400).json({ message: 'Invalid ID' });
+    }
+
+    const course = await Course.findById(id);
 
     if (course) {
       await course.deleteOne();
-      // TODO: Add logic here to delete the 'image' from Cloudinary
       res.json({ message: 'Course removed' });
     } else {
       res.status(404).json({ message: 'Course not found' });
