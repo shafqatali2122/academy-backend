@@ -1,18 +1,20 @@
 import nodemailer from 'nodemailer';
 
-// --- Use this configuration block ---
-
-const SMTP_PORT = Number(process.env.SMTP_PORT || 587);
+// Port 587 is used by SendGrid
+const SMTP_PORT = 587;
 
 export const mailer = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
+    // Uses SMTP_HOST (smtp.sendgrid.net) from environment variables
+    host: process.env.SMTP_HOST, 
     port: SMTP_PORT,
-    // Set secure: true if the port is 465 (SMTPS)
-    secure: SMTP_PORT === 465, 
-    // If using port 587, require TLS explicitly (often fixes timeouts)
-    requireTLS: SMTP_PORT === 587, 
+    // Must be false for port 587
+    secure: false, 
+    // CRUCIAL: Enables the necessary STARTTLS handshake for port 587
+    requireTLS: true, 
     auth: {
+        // Uses SMTP_USER (apikey) from environment variables
         user: process.env.SMTP_USER, 
+        // Uses SMTP_PASS (SendGrid API Key) from environment variables
         pass: process.env.SMTP_PASS, 
     },
 });
