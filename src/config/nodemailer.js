@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 
 // Port 587 is used by SendGrid
-const SMTP_PORT = 587;
+const SMTP_PORT = 443;
 
 export const mailer = nodemailer.createTransport({
     // Uses SMTP_HOST (smtp.sendgrid.net) from environment variables
