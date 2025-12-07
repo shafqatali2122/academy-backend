@@ -32,7 +32,7 @@ export async function sendEnrollmentConfirmation(toEmail, payload) {
   try {
     await mailer.sendMail({
       to: toEmail,
-      from: process.env.SMTP_USER, // CRUCIAL: Use the authenticated user (apikey)
+      from: process.env.SMTP_USER, 
       subject: `[Al-Khalil Institute] Enrollment Update: ${courseOfInterest}`,
       html: html,
     });
