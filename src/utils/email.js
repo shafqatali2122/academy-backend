@@ -19,7 +19,7 @@ export async function sendEnrollmentConfirmation(toEmail, payload) {
   try {
     await mailer.sendMail({
       to: toEmail,
-      from: process.env.EMAIL_FROM, // This comes from your .env file
+      from: process.env.SMTP_USER, // This comes from your .env file
       subject: `[Al-Khalil Institute] Enrollment Update: ${courseOfInterest}`, // Updated Subject
       html: html,
     });
@@ -56,7 +56,7 @@ export async function sendPasswordResetEmail(toEmail, resetToken) {
   try {
     await mailer.sendMail({
       to: toEmail,
-      from: process.env.EMAIL_FROM,
+      from: process.env.SMTP_USER,
       subject: '[Al-Khalil Institute] Your Password Reset Link', // Updated Subject
       html: html,
     });
