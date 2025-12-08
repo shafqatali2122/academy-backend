@@ -28,11 +28,11 @@ export const createEnrollment = async (req, res) => {
       message,
     });
 
-    // Send confirmation email (NOW WE WAIT for it to finish)
+    // FIX: Send the initial PENDING confirmation email
     await sendEnrollmentConfirmation(doc.studentEmail, {
       studentName: doc.studentName,
       courseOfInterest: doc.courseOfInterest,
-      status: doc.status,
+      status: doc.status, // This will be 'Pending' by default
     });
 
     res.status(201).json(doc);
@@ -47,7 +47,6 @@ export const createEnrollment = async (req, res) => {
 export const listEnrollments = async (req, res) => {
   try {
     const q = {};
-    // Allow filtering by status, e.g., /api/enrollments?status=Pending
     if (req.query.status) {
       q.status = req.query.status;
     }
@@ -81,11 +80,11 @@ export const setStatus = async (req, res) => {
       return res.status(404).json({ message: 'Enrollment not found' });
     }
 
-    // Send update email
+    // FIX: Send the ACCEPTED/REJECTED confirmation email
     await sendEnrollmentConfirmation(doc.studentEmail, {
       studentName: doc.studentName,
       courseOfInterest: doc.courseOfInterest,
-      status: doc.status,
+      status: doc.status, // This will be the new status ('Accepted' or 'Rejected')
     });
 
     res.json(doc);
